@@ -19,7 +19,7 @@ export default function MeetingTimePicker() {
       const selectedTimes = response.data.map(entry => entry.time);
       setAvailableTimes(availableTimes.filter(time => !selectedTimes.includes(time)));
     };
-    
+
     fetchSelectedTimes();
   }, []);
 
