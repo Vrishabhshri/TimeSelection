@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios"; // or use fetch
 
 export default function MeetingTimePicker() {
   const initialTimes = [
@@ -11,14 +12,28 @@ export default function MeetingTimePicker() {
   const [availableTimes, setAvailableTimes] = useState(initialTimes);
   const [name, setName] = useState("");
 
-  const handleSelectTime = (time) => {
+  useEffect(() => {
+    // Fetch the selected times from the backend
+    const fetchSelectedTimes = async () => {
+      const response = await axios.get("/api/select-time");
+      const selectedTimes = response.data.map(entry => entry.time);
+      setAvailableTimes(availableTimes.filter(time => !selectedTimes.includes(time)));
+    };
+    
+    fetchSelectedTimes();
+  }, []);
+
+  const handleSelectTime = async (time) => {
     if (!name.trim()) {
       alert("Please enter your name before selecting a time.");
       return;
     }
+
+    // Send selected time to the backend
+    await axios.post("/api/select-time", { name, time });
+
+    // Update the available times
     setAvailableTimes(availableTimes.filter(t => t !== time));
-    const storedSelections = JSON.parse(sessionStorage.getItem("selectedTimes")) || [];
-    sessionStorage.setItem("selectedTimes", JSON.stringify([...storedSelections, { name, time }]));
   };
 
   return (
